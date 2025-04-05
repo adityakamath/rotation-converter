@@ -57,11 +57,22 @@
             box-shadow: var(--shadow-md);
             transition: var(--transition);
             overflow: hidden;
+            position: relative;
+            min-height: 600px;
         }
 
-        .viewer-section:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
+        #viewer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        #viewer canvas {
+            width: 100% !important;
+            height: 100% !important;
+            outline: none;
         }
 
         .header-section {
@@ -224,11 +235,6 @@
             word-break: break-all;
         }
 
-        #viewer canvas {
-            width: 100% !important;
-            height: 100% !important;
-        }
-
         @media (max-width: 992px) {
             .container {
                 flex-direction: column;
@@ -240,7 +246,7 @@
             }
             
             .viewer-section {
-                height: 400px;
+                min-height: 400px;
             }
         }
     </style>
@@ -372,13 +378,25 @@
 
         function init() {
             scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(window.innerWidth - 440, window.innerHeight - 40);
-            document.getElementById('viewer').appendChild(renderer.domElement);
+            scene.background = new THREE.Color(0xffffff);
+            
+            // Get the viewer element and its dimensions
+            const viewer = document.getElementById('viewer');
+            const viewerRect = viewer.getBoundingClientRect();
+            
+            camera = new THREE.PerspectiveCamera(60, viewerRect.width / viewerRect.height, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ 
+                antialias: true,
+                alpha: true 
+            });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(viewerRect.width, viewerRect.height);
+            viewer.appendChild(renderer.domElement);
 
-            const gridHelper = new THREE.GridHelper(10, 10);
+            // Set up scene elements
+            const gridHelper = new THREE.GridHelper(10, 10, 0x888888, 0xcccccc);
             scene.add(gridHelper);
+            
             const axesHelper = new THREE.AxesHelper(5);
             scene.add(axesHelper);
 
@@ -396,26 +414,34 @@
             const edgesMesh = new THREE.LineSegments(edges, edgesMaterial);
             cube.add(edgesMesh);
 
-            const light = new THREE.DirectionalLight(0xffffff, 1);
-            light.position.set(1, 1, 1);
-            scene.add(light);
-            scene.add(new THREE.AmbientLight(0x404040));
+            // Improve lighting
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(5, 5, 5);
+            scene.add(directionalLight);
+            
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+            scene.add(ambientLight);
 
             camera.position.set(5, 5, 5);
             controls = new OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.screenSpacePanning = false;
+            controls.minDistance = 5;
+            controls.maxDistance = 20;
+            controls.maxPolarAngle = Math.PI / 2;
 
             window.addEventListener('resize', onWindowResize, false);
             animate();
         }
 
         function onWindowResize() {
-            const width = window.innerWidth > 992 ? window.innerWidth - 440 : window.innerWidth - 40;
-            const height = window.innerWidth > 992 ? window.innerHeight - 40 : 400;
+            const viewer = document.getElementById('viewer');
+            const viewerRect = viewer.getBoundingClientRect();
             
-            camera.aspect = width / height;
+            camera.aspect = viewerRect.width / viewerRect.height;
             camera.updateProjectionMatrix();
-            renderer.setSize(width, height);
+            renderer.setSize(viewerRect.width, viewerRect.height);
         }
 
         function animate() {
