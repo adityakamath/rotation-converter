@@ -34,15 +34,38 @@
         }
 
         .app-container {
-            max-width: 100%;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 15px;
             display: flex !important;
-            flex-direction: row !important;
+            flex-direction: column !important;
             gap: 20px;
-            height: calc(100vh - 100px);
-            width: 100%;
             flex: 1;
+            width: 100%;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .title .header-emoji {
+            display: inline-block;
+            transform: scale(1.5);
+            margin-right: 8px;
+        }
+
+        .content-container {
+            display: flex;
+            gap: 20px;
+            height: calc(100vh - 200px);
         }
 
         .controls-section {
@@ -90,24 +113,6 @@
             height: 100% !important;
             outline: none;
             display: block;
-        }
-
-        .header-section {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .title {
-            font-size: 28px;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: var(--text-primary);
-        }
-
-        .title .header-emoji {
-            display: inline-block;
-            transform: scale(1.5);
-            margin-right: 8px;
         }
 
         .input-section, .output-section {
@@ -283,8 +288,8 @@
         }
 
         @media (max-width: 992px) {
-            .app-container {
-                flex-direction: column !important;
+            .content-container {
+                flex-direction: column;
                 height: auto;
             }
             
@@ -307,111 +312,113 @@
 </head>
 <body>
     <div class="app-container">
-        <div class="controls-section">
-            <div class="header-section">
-                <h1 class="title">
-                    <span class="header-emoji">🔄</span>
-                    3D Rotation Converter
-                </h1>
-            </div>
-
-            <div class="input-section">
-                <h2 class="section-title">Input Format</h2>
-                <select id="format" class="form-select">
-                    <option value="euler">Euler Angles</option>
-                    <option value="quaternion">Quaternion</option>
-                    <option value="matrix">Rotation Matrix</option>
-                    <option value="axis-angle">Axis-Angle</option>
-                </select>
-
-                <div id="rotation-order" class="input-group">
-                    <select id="input-rotation-order" class="form-select">
-                        <option value="xyz">XYZ Order</option>
-                        <option value="xzy">XZY Order</option>
-                        <option value="yxz">YXZ Order</option>
-                        <option value="yzx">YZX Order</option>
-                        <option value="zxy">ZXY Order</option>
-                        <option value="zyx">ZYX Order</option>
-                    </select>
-                </div>
-
-                <div id="angle-units" class="toggle-container">
-                    <span class="toggle-label">Input Units</span>
-                    <span class="unit-label">Radians</span>
-                    <label class="toggle-button">
-                        <input type="checkbox" id="input-units-toggle" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                    <span class="unit-label">Degrees</span>
-                </div>
-
-                <div id="euler-inputs" class="input-group">
-                    <input type="number" placeholder="X" step="any" class="form-control">
-                    <input type="number" placeholder="Y" step="any" class="form-control">
-                    <input type="number" placeholder="Z" step="any" class="form-control">
-                </div>
-
-                <div id="quaternion-inputs" class="input-group" style="display: none;">
-                    <input type="number" placeholder="w" step="any" class="form-control">
-                    <input type="number" placeholder="x" step="any" class="form-control">
-                    <input type="number" placeholder="y" step="any" class="form-control">
-                    <input type="number" placeholder="z" step="any" class="form-control">
-                </div>
-
-                <div id="matrix-inputs" class="input-group" style="display: none;">
-                    <input type="number" placeholder="m11" step="any" class="form-control">
-                    <input type="number" placeholder="m12" step="any" class="form-control">
-                    <input type="number" placeholder="m13" step="any" class="form-control">
-                    <input type="number" placeholder="m21" step="any" class="form-control">
-                    <input type="number" placeholder="m22" step="any" class="form-control">
-                    <input type="number" placeholder="m23" step="any" class="form-control">
-                    <input type="number" placeholder="m31" step="any" class="form-control">
-                    <input type="number" placeholder="m32" step="any" class="form-control">
-                    <input type="number" placeholder="m33" step="any" class="form-control">
-                </div>
-
-                <div id="axis-angle-inputs" class="input-group" style="display: none;">
-                    <input type="number" placeholder="Angle" step="any" class="form-control">
-                    <input type="number" placeholder="Axis X" step="any" class="form-control">
-                    <input type="number" placeholder="Axis Y" step="any" class="form-control">
-                    <input type="number" placeholder="Axis Z" step="any" class="form-control">
-                </div>
-
-                <button onclick="convert()" class="btn btn-primary">Convert</button>
-            </div>
-
-            <div class="output-section">
-                <h2 class="section-title">Output Options</h2>
-                
-                <div id="output-rotation-order" class="input-group">
-                    <select id="output-rotation-order" class="form-select">
-                        <option value="xyz">XYZ Order</option>
-                        <option value="xzy">XZY Order</option>
-                        <option value="yxz">YXZ Order</option>
-                        <option value="yzx">YZX Order</option>
-                        <option value="zxy">ZXY Order</option>
-                        <option value="zyx">ZYX Order</option>
-                    </select>
-                </div>
-
-                <div id="output-units" class="toggle-container">
-                    <span class="toggle-label">Output Units</span>
-                    <span class="unit-label">Radians</span>
-                    <label class="toggle-button">
-                        <input type="checkbox" id="output-units-toggle" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                    <span class="unit-label">Degrees</span>
-                </div>
-
-                <div class="results">
-                    <h3 class="section-title">Results</h3>
-                    <pre id="results">No conversion performed yet.</pre>
-                </div>
-            </div>
+        <div class="header-section">
+            <h1 class="title">
+                <span class="header-emoji">🔄</span>
+                3D Rotation Converter
+            </h1>
         </div>
 
-        <div class="viewer-section" id="viewer"></div>
+        <div class="content-container">
+            <div class="controls-section">
+                <div class="input-section">
+                    <h2 class="section-title">Input Format</h2>
+                    <select id="format" class="form-select">
+                        <option value="euler">Euler Angles</option>
+                        <option value="quaternion">Quaternion</option>
+                        <option value="matrix">Rotation Matrix</option>
+                        <option value="axis-angle">Axis-Angle</option>
+                    </select>
+
+                    <div id="rotation-order" class="input-group">
+                        <select id="input-rotation-order" class="form-select">
+                            <option value="xyz">XYZ Order</option>
+                            <option value="xzy">XZY Order</option>
+                            <option value="yxz">YXZ Order</option>
+                            <option value="yzx">YZX Order</option>
+                            <option value="zxy">ZXY Order</option>
+                            <option value="zyx">ZYX Order</option>
+                        </select>
+                    </div>
+
+                    <div id="angle-units" class="toggle-container">
+                        <span class="toggle-label">Input Units</span>
+                        <span class="unit-label">Radians</span>
+                        <label class="toggle-button">
+                            <input type="checkbox" id="input-units-toggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="unit-label">Degrees</span>
+                    </div>
+
+                    <div id="euler-inputs" class="input-group">
+                        <input type="number" placeholder="X" step="any" class="form-control">
+                        <input type="number" placeholder="Y" step="any" class="form-control">
+                        <input type="number" placeholder="Z" step="any" class="form-control">
+                    </div>
+
+                    <div id="quaternion-inputs" class="input-group" style="display: none;">
+                        <input type="number" placeholder="w" step="any" class="form-control">
+                        <input type="number" placeholder="x" step="any" class="form-control">
+                        <input type="number" placeholder="y" step="any" class="form-control">
+                        <input type="number" placeholder="z" step="any" class="form-control">
+                    </div>
+
+                    <div id="matrix-inputs" class="input-group" style="display: none;">
+                        <input type="number" placeholder="m11" step="any" class="form-control">
+                        <input type="number" placeholder="m12" step="any" class="form-control">
+                        <input type="number" placeholder="m13" step="any" class="form-control">
+                        <input type="number" placeholder="m21" step="any" class="form-control">
+                        <input type="number" placeholder="m22" step="any" class="form-control">
+                        <input type="number" placeholder="m23" step="any" class="form-control">
+                        <input type="number" placeholder="m31" step="any" class="form-control">
+                        <input type="number" placeholder="m32" step="any" class="form-control">
+                        <input type="number" placeholder="m33" step="any" class="form-control">
+                    </div>
+
+                    <div id="axis-angle-inputs" class="input-group" style="display: none;">
+                        <input type="number" placeholder="Angle" step="any" class="form-control">
+                        <input type="number" placeholder="Axis X" step="any" class="form-control">
+                        <input type="number" placeholder="Axis Y" step="any" class="form-control">
+                        <input type="number" placeholder="Axis Z" step="any" class="form-control">
+                    </div>
+
+                    <button onclick="convert()" class="btn btn-primary">Convert</button>
+                </div>
+
+                <div class="output-section">
+                    <h2 class="section-title">Output Options</h2>
+                    
+                    <div id="output-rotation-order" class="input-group">
+                        <select id="output-rotation-order" class="form-select">
+                            <option value="xyz">XYZ Order</option>
+                            <option value="xzy">XZY Order</option>
+                            <option value="yxz">YXZ Order</option>
+                            <option value="yzx">YZX Order</option>
+                            <option value="zxy">ZXY Order</option>
+                            <option value="zyx">ZYX Order</option>
+                        </select>
+                    </div>
+
+                    <div id="output-units" class="toggle-container">
+                        <span class="toggle-label">Output Units</span>
+                        <span class="unit-label">Radians</span>
+                        <label class="toggle-button">
+                            <input type="checkbox" id="output-units-toggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="unit-label">Degrees</span>
+                    </div>
+
+                    <div class="results">
+                        <h3 class="section-title">Results</h3>
+                        <pre id="results">No conversion performed yet.</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="viewer-section" id="viewer"></div>
+        </div>
     </div>
 
     <div class="footer">
