@@ -570,44 +570,38 @@
             const useDegrees = document.getElementById('input-units-toggle').checked;
             const unit = useDegrees ? '(deg)' : '(rad)';
 
-            // Hide all input groups first
-            document.querySelectorAll('.input-group').forEach(group => {
-                if (group.id !== format + '-inputs') {
-                    group.style.display = 'none';
-                }
-            });
-
-            // Show and update the selected input group
-            const selectedGroup = document.getElementById(format + '-inputs');
-            if (selectedGroup) {
-                selectedGroup.style.display = 'block';
-                const inputs = selectedGroup.getElementsByTagName('input');
-
-                if (format === 'euler') {
-                    const order = document.getElementById('input-rotation-order').value.toUpperCase();
-                    inputs[0].placeholder = `${order[0]} ${unit}`;
-                    inputs[1].placeholder = `${order[1]} ${unit}`;
-                    inputs[2].placeholder = `${order[2]} ${unit}`;
-                } else if (format === 'axis-angle') {
-                    inputs[0].placeholder = `Angle ${unit}`;
-                    inputs[1].placeholder = 'Axis X (normalized)';
-                    inputs[2].placeholder = 'Axis Y (normalized)';
-                    inputs[3].placeholder = 'Axis Z (normalized)';
-                } else if (format === 'quaternion') {
-                    inputs[0].placeholder = 'w (real)';
-                    inputs[1].placeholder = 'x (i)';
-                    inputs[2].placeholder = 'y (j)';
-                    inputs[3].placeholder = 'z (k)';
-                } else if (format === 'matrix') {
-                    const labels = ['11', '12', '13', '21', '22', '23', '31', '32', '33'];
-                    labels.forEach((label, index) => {
-                        inputs[index].placeholder = `m${label}`;
-                    });
-                }
+            if (format === 'euler') {
+                const inputs = document.getElementById('euler-inputs').getElementsByTagName('input');
+                const order = document.getElementById('input-rotation-order').value.toUpperCase();
+                inputs[0].placeholder = `${order[0]} ${unit}`;
+                inputs[1].placeholder = `${order[1]} ${unit}`;
+                inputs[2].placeholder = `${order[2]} ${unit}`;
+            } else if (format === 'axis-angle') {
+                const inputs = document.getElementById('axis-angle-inputs').getElementsByTagName('input');
+                inputs[0].placeholder = `Angle ${unit}`;
+                inputs[1].placeholder = 'Axis X (normalized)';
+                inputs[2].placeholder = 'Axis Y (normalized)';
+                inputs[3].placeholder = 'Axis Z (normalized)';
+            } else if (format === 'quaternion') {
+                const inputs = document.getElementById('quaternion-inputs').getElementsByTagName('input');
+                inputs[0].placeholder = 'w (real)';
+                inputs[1].placeholder = 'x (i)';
+                inputs[2].placeholder = 'y (j)';
+                inputs[3].placeholder = 'z (k)';
+            } else if (format === 'matrix') {
+                const inputs = document.getElementById('matrix-inputs').getElementsByTagName('input');
+                const labels = ['11', '12', '13', '21', '22', '23', '31', '32', '33'];
+                labels.forEach((label, index) => {
+                    inputs[index].placeholder = `m${label}`;
+                });
             }
         }
 
         document.getElementById('input-rotation-order').addEventListener('change', updatePlaceholders);
+        document.getElementById('input-units-toggle').addEventListener('change', updatePlaceholders);
+
+        // Call updatePlaceholders when the page loads
+        document.addEventListener('DOMContentLoaded', updatePlaceholders);
 
         function getInputValues() {
             const format = document.getElementById('format').value;
@@ -659,8 +653,6 @@
                 document.getElementById('results').textContent = 'Error: ' + error;
             });
         }
-
-        updatePlaceholders();
     </script>
 </body>
 </html>
