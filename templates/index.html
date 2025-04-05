@@ -529,17 +529,24 @@
 
     <script>
         document.getElementById('format').addEventListener('change', function(e) {
+            // First hide all input groups
             document.querySelectorAll('.input-group').forEach(group => {
                 group.style.display = 'none';
             });
-            document.getElementById(e.target.value + '-inputs').style.display = 'block';
             
+            // Show the selected input group
+            const selectedGroup = document.getElementById(e.target.value + '-inputs');
+            selectedGroup.style.display = 'block';
+            
+            // Update visibility of angle units and rotation order controls
             const angleUnits = document.getElementById('angle-units');
             const rotationOrder = document.getElementById('rotation-order');
             const showAngles = ['euler', 'axis-angle'].includes(e.target.value);
             angleUnits.style.display = showAngles ? 'flex' : 'none';
             rotationOrder.style.display = e.target.value === 'euler' ? 'block' : 'none';
-            updatePlaceholders();
+            
+            // Update placeholders after showing the input group
+            setTimeout(updatePlaceholders, 0);
         });
 
         document.getElementById('input-units-toggle').addEventListener('change', function(e) {
