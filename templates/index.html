@@ -160,6 +160,18 @@
             margin-bottom: 8px;
         }
 
+        .input-label {
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .unit-text {
+            color: var(--text-secondary);
+            font-weight: normal;
+        }
+
         .toggle-container {
             display: flex;
             align-items: center;
@@ -352,35 +364,55 @@
                     </div>
 
                     <div id="euler-inputs" class="input-group">
-                        <input type="number" placeholder="X (deg)" step="any" class="form-control">
-                        <input type="number" placeholder="Y (deg)" step="any" class="form-control">
-                        <input type="number" placeholder="Z (deg)" step="any" class="form-control">
+                        <div class="input-label">X <span class="unit-text">(deg)</span></div>
+                        <input type="number" step="any" class="form-control">
+                        <div class="input-label">Y <span class="unit-text">(deg)</span></div>
+                        <input type="number" step="any" class="form-control">
+                        <div class="input-label">Z <span class="unit-text">(deg)</span></div>
+                        <input type="number" step="any" class="form-control">
                     </div>
 
                     <div id="quaternion-inputs" class="input-group" style="display: none;">
-                        <input type="number" placeholder="w (real)" step="any" class="form-control">
-                        <input type="number" placeholder="x (i)" step="any" class="form-control">
-                        <input type="number" placeholder="y (j)" step="any" class="form-control">
-                        <input type="number" placeholder="z (k)" step="any" class="form-control">
+                        <div class="input-label">w (real)</div>
+                        <input type="number" step="any" class="form-control">
+                        <div class="input-label">x (i)</div>
+                        <input type="number" step="any" class="form-control">
+                        <div class="input-label">y (j)</div>
+                        <input type="number" step="any" class="form-control">
+                        <div class="input-label">z (k)</div>
+                        <input type="number" step="any" class="form-control">
                     </div>
 
                     <div id="matrix-inputs" class="input-group" style="display: none;">
-                        <input type="number" placeholder="m11" step="any" class="form-control">
-                        <input type="number" placeholder="m12" step="any" class="form-control">
-                        <input type="number" placeholder="m13" step="any" class="form-control">
-                        <input type="number" placeholder="m21" step="any" class="form-control">
-                        <input type="number" placeholder="m22" step="any" class="form-control">
-                        <input type="number" placeholder="m23" step="any" class="form-control">
-                        <input type="number" placeholder="m31" step="any" class="form-control">
-                        <input type="number" placeholder="m32" step="any" class="form-control">
-                        <input type="number" placeholder="m33" step="any" class="form-control">
+                        <div class="input-label">m11</div>
+                        <input type="number" step="any" class="form-control">
+                        <div class="input-label">m12</div>
+                        <input type="number" step="any" class="form-control">
+                        <div class="input-label">m13</div>
+                        <input type="number" step="any" class="form-control">
+                        <div class="input-label">m21</div>
+                        <input type="number" step="any" class="form-control">
+                        <div class="input-label">m22</div>
+                        <input type="number" step="any" class="form-control">
+                        <div class="input-label">m23</div>
+                        <input type="number" step="any" class="form-control">
+                        <div class="input-label">m31</div>
+                        <input type="number" step="any" class="form-control">
+                        <div class="input-label">m32</div>
+                        <input type="number" step="any" class="form-control">
+                        <div class="input-label">m33</div>
+                        <input type="number" step="any" class="form-control">
                     </div>
 
                     <div id="axis-angle-inputs" class="input-group" style="display: none;">
-                        <input type="number" placeholder="Angle (deg)" step="any" class="form-control">
-                        <input type="number" placeholder="Axis X (normalized)" step="any" class="form-control">
-                        <input type="number" placeholder="Axis Y (normalized)" step="any" class="form-control">
-                        <input type="number" placeholder="Axis Z (normalized)" step="any" class="form-control">
+                        <div class="input-label">Angle <span class="unit-text">(deg)</span></div>
+                        <input type="number" step="any" class="form-control">
+                        <div class="input-label">Axis X (normalized)</div>
+                        <input type="number" step="any" class="form-control">
+                        <div class="input-label">Axis Y (normalized)</div>
+                        <input type="number" step="any" class="form-control">
+                        <div class="input-label">Axis Z (normalized)</div>
+                        <input type="number" step="any" class="form-control">
                     </div>
 
                     <button onclick="convert()" class="btn btn-primary">Convert</button>
@@ -528,6 +560,22 @@
     </script>
 
     <script>
+        function updateUnitText() {
+            const format = document.getElementById('format').value;
+            const useDegrees = document.getElementById('input-units-toggle').checked;
+            const unit = useDegrees ? '(deg)' : '(rad)';
+
+            if (format === 'euler') {
+                const labels = document.getElementById('euler-inputs').getElementsByClassName('unit-text');
+                Array.from(labels).forEach(label => {
+                    label.textContent = ` ${unit}`;
+                });
+            } else if (format === 'axis-angle') {
+                const label = document.getElementById('axis-angle-inputs').getElementsByClassName('unit-text')[0];
+                label.textContent = ` ${unit}`;
+            }
+        }
+
         document.getElementById('format').addEventListener('change', function(e) {
             // First hide all input groups
             document.querySelectorAll('.input-group').forEach(group => {
@@ -547,42 +595,27 @@
             angleUnits.style.display = showAngles ? 'flex' : 'none';
             rotationOrder.style.display = e.target.value === 'euler' ? 'block' : 'none';
             
-            // Update placeholders for angle-dependent formats
+            // Update unit text for angle-dependent formats
             if (showAngles) {
-                updatePlaceholders();
+                updateUnitText();
             }
         });
 
-        document.getElementById('input-units-toggle').addEventListener('change', function(e) {
-            updatePlaceholders();
+        document.getElementById('input-units-toggle').addEventListener('change', updateUnitText);
+        document.getElementById('input-rotation-order').addEventListener('change', function(e) {
+            const order = e.target.value.toUpperCase();
+            const labels = document.getElementById('euler-inputs').getElementsByClassName('input-label');
+            labels[0].firstChild.textContent = `${order[0]} `;
+            labels[1].firstChild.textContent = `${order[1]} `;
+            labels[2].firstChild.textContent = `${order[2]} `;
         });
+
+        // Initialize unit text when the page loads
+        document.addEventListener('DOMContentLoaded', updateUnitText);
 
         document.getElementById('output-units-toggle').addEventListener('change', function(e) {
             convert();
         });
-
-        function updatePlaceholders() {
-            const format = document.getElementById('format').value;
-            const useDegrees = document.getElementById('input-units-toggle').checked;
-            const unit = useDegrees ? '(deg)' : '(rad)';
-
-            if (format === 'euler') {
-                const inputs = document.getElementById('euler-inputs').getElementsByTagName('input');
-                const order = document.getElementById('input-rotation-order').value.toUpperCase();
-                inputs[0].placeholder = `${order[0]} ${unit}`;
-                inputs[1].placeholder = `${order[1]} ${unit}`;
-                inputs[2].placeholder = `${order[2]} ${unit}`;
-            } else if (format === 'axis-angle') {
-                const inputs = document.getElementById('axis-angle-inputs').getElementsByTagName('input');
-                inputs[0].placeholder = `Angle ${unit}`;
-            }
-        }
-
-        document.getElementById('input-rotation-order').addEventListener('change', updatePlaceholders);
-        document.getElementById('input-units-toggle').addEventListener('change', updatePlaceholders);
-
-        // Call updatePlaceholders when the page loads
-        document.addEventListener('DOMContentLoaded', updatePlaceholders);
 
         function getInputValues() {
             const format = document.getElementById('format').value;
