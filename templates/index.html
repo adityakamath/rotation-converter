@@ -255,28 +255,31 @@
         }
 
         .footer {
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             padding: 20px;
-            background-color: var(--card-background);
-            border-top: 1px solid var(--border-color);
-            margin-top: auto;
-        }
-
-        .footer p {
-            margin: 0;
             color: var(--text-secondary);
             font-size: 14px;
+            margin-top: auto;
         }
 
         .footer a {
             color: var(--primary-color);
             text-decoration: none;
-            transition: color 0.2s ease;
+            transition: opacity 0.2s ease;
         }
 
         .footer a:hover {
-            color: #0056b3;
-            text-decoration: underline;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .footer {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
         }
 
         @media (max-width: 992px) {
@@ -411,12 +414,14 @@
         <div class="viewer-section" id="viewer"></div>
     </div>
 
-    <footer class="footer">
-        <p>
-            Made with ❤️ by Aditya Kamath | 
-            <a href="https://github.com/adityakamath/rotation-converter" target="_blank" rel="noopener noreferrer">View on GitHub</a>
-        </p>
-    </footer>
+    <div class="footer">
+        <div class="copyright">
+            © 2025 <a href="https://kamathsblog.com/" target="_blank">kamathsblog.com</a>
+        </div>
+        <div class="attribution">
+            Created by <a href="https://github.com/adityakamath/rotation-converter" target="_blank">Aditya Kamath</a>
+        </div>
+    </div>
 
     <script async src="https://unpkg.com/es-module-shims@1.8.0/dist/es-module-shims.js"></script>
     <script type="importmap">
