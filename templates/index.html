@@ -1,30 +1,147 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔄</text></svg>">
     <title>3D Rotation Converter</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { margin: 0; }
-        #container { display: flex; }
-        #controls { padding: 20px; width: 300px; }
-        #viewer { flex-grow: 1; }
-        select, input, button { 
-            margin: 5px 0;
-            padding: 5px;
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --background-color: #f8f9fa;
+            --card-background: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --border-color: #dee2e6;
+            --shadow-sm: 0 .125rem .25rem rgba(0,0,0,.075);
+            --shadow-md: 0 .5rem 1rem rgba(0,0,0,.15);
+            --shadow-lg: 0 1rem 3rem rgba(0,0,0,.175);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 15px;
+            flex: 1;
             width: 100%;
+            display: flex;
+            gap: 20px;
         }
-        .results {
-            margin-top: 20px;
-            font-family: monospace;
+
+        .controls-section {
+            flex: 0 0 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
+
+        .viewer-section {
+            flex: 1;
+            background: var(--card-background);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            overflow: hidden;
+        }
+
+        .viewer-section:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .title .header-emoji {
+            display: inline-block;
+            transform: scale(1.5);
+            margin-right: 8px;
+        }
+
+        .input-section, .output-section {
+            background: var(--card-background);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+        }
+
+        .input-section:hover, .output-section:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .section-title {
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        select, input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            transition: var(--transition);
+            margin-bottom: 10px;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group input {
+            margin-bottom: 8px;
+        }
+
         .toggle-container {
             display: flex;
             align-items: center;
-            margin: 10px 0;
+            margin: 15px 0;
+            padding: 10px;
+            background: var(--background-color);
+            border-radius: 8px;
         }
+
         .toggle-label {
             flex: 1;
             font-size: 14px;
+            color: var(--text-primary);
         }
+
         .toggle-button {
             position: relative;
             display: inline-block;
@@ -32,11 +149,14 @@
             height: 30px;
             margin: 0 10px;
         }
+
         .toggle-button input {
             opacity: 0;
             width: 0;
             height: 0;
+            margin: 0;
         }
+
         .toggle-slider {
             position: absolute;
             cursor: pointer;
@@ -44,10 +164,11 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
+            background-color: var(--secondary-color);
+            transition: var(--transition);
             border-radius: 30px;
         }
+
         .toggle-slider:before {
             position: absolute;
             content: "";
@@ -56,118 +177,181 @@
             left: 4px;
             bottom: 4px;
             background-color: white;
-            transition: .4s;
+            transition: var(--transition);
             border-radius: 50%;
         }
+
         input:checked + .toggle-slider {
-            background-color: #2196F3;
+            background-color: var(--primary-color);
         }
+
         input:checked + .toggle-slider:before {
             transform: translateX(30px);
         }
+
         .unit-label {
             font-size: 12px;
-            color: #666;
+            color: var(--text-secondary);
+            min-width: 60px;
+            text-align: center;
         }
-        .unit-label:last-child {
-            margin-left: 0;
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        .results {
+            margin-top: 20px;
+            font-family: monospace;
+            background: var(--background-color);
+            padding: 15px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        #viewer canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        @media (max-width: 992px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .controls-section {
+                flex: none;
+                width: 100%;
+            }
+            
+            .viewer-section {
+                height: 400px;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="container">
-        <div id="controls">
-            <h2>3D Rotation Converter</h2>
-            
-            <select id="format">
-                <option value="euler">Euler Angles (XYZ)</option>
-                <option value="quaternion">Quaternion</option>
-                <option value="matrix">Rotation Matrix</option>
-                <option value="axis-angle">Axis-Angle</option>
-            </select>
-
-            <div id="angle-units" class="toggle-container">
-                <span class="toggle-label">Input Units:</span>
-                <label class="toggle-button">
-                    <input type="checkbox" id="input-units-toggle" checked>
-                    <span class="toggle-slider"></span>
-                </label>
-                <span class="unit-label">Radians</span>
-                <span class="unit-label">Degrees</span>
+    <div class="container">
+        <div class="controls-section">
+            <div class="header-section">
+                <h1 class="title">
+                    <span class="header-emoji">🔄</span>
+                    3D Rotation Converter
+                </h1>
             </div>
 
-            <div id="rotation-order" class="input-group">
-                <select id="input-rotation-order">
-                    <option value="xyz">XYZ</option>
-                    <option value="xzy">XZY</option>
-                    <option value="yxz">YXZ</option>
-                    <option value="yzx">YZX</option>
-                    <option value="zxy">ZXY</option>
-                    <option value="zyx">ZYX</option>
+            <div class="input-section">
+                <h2 class="section-title">Input Format</h2>
+                <select id="format" class="form-select">
+                    <option value="euler">Euler Angles</option>
+                    <option value="quaternion">Quaternion</option>
+                    <option value="matrix">Rotation Matrix</option>
+                    <option value="axis-angle">Axis-Angle</option>
                 </select>
+
+                <div id="rotation-order" class="input-group">
+                    <select id="input-rotation-order" class="form-select">
+                        <option value="xyz">XYZ Order</option>
+                        <option value="xzy">XZY Order</option>
+                        <option value="yxz">YXZ Order</option>
+                        <option value="yzx">YZX Order</option>
+                        <option value="zxy">ZXY Order</option>
+                        <option value="zyx">ZYX Order</option>
+                    </select>
+                </div>
+
+                <div id="angle-units" class="toggle-container">
+                    <span class="toggle-label">Input Units</span>
+                    <span class="unit-label">Radians</span>
+                    <label class="toggle-button">
+                        <input type="checkbox" id="input-units-toggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="unit-label">Degrees</span>
+                </div>
+
+                <div id="euler-inputs" class="input-group">
+                    <input type="number" placeholder="X" step="any" class="form-control">
+                    <input type="number" placeholder="Y" step="any" class="form-control">
+                    <input type="number" placeholder="Z" step="any" class="form-control">
+                </div>
+
+                <div id="quaternion-inputs" class="input-group" style="display: none;">
+                    <input type="number" placeholder="w" step="any" class="form-control">
+                    <input type="number" placeholder="x" step="any" class="form-control">
+                    <input type="number" placeholder="y" step="any" class="form-control">
+                    <input type="number" placeholder="z" step="any" class="form-control">
+                </div>
+
+                <div id="matrix-inputs" class="input-group" style="display: none;">
+                    <input type="number" placeholder="m11" step="any" class="form-control">
+                    <input type="number" placeholder="m12" step="any" class="form-control">
+                    <input type="number" placeholder="m13" step="any" class="form-control">
+                    <input type="number" placeholder="m21" step="any" class="form-control">
+                    <input type="number" placeholder="m22" step="any" class="form-control">
+                    <input type="number" placeholder="m23" step="any" class="form-control">
+                    <input type="number" placeholder="m31" step="any" class="form-control">
+                    <input type="number" placeholder="m32" step="any" class="form-control">
+                    <input type="number" placeholder="m33" step="any" class="form-control">
+                </div>
+
+                <div id="axis-angle-inputs" class="input-group" style="display: none;">
+                    <input type="number" placeholder="Angle" step="any" class="form-control">
+                    <input type="number" placeholder="Axis X" step="any" class="form-control">
+                    <input type="number" placeholder="Axis Y" step="any" class="form-control">
+                    <input type="number" placeholder="Axis Z" step="any" class="form-control">
+                </div>
+
+                <button onclick="convert()" class="btn btn-primary">Convert</button>
             </div>
 
-            <div id="euler-inputs" class="input-group">
-                <input type="number" placeholder="X" step="any">
-                <input type="number" placeholder="Y" step="any">
-                <input type="number" placeholder="Z" step="any">
-            </div>
+            <div class="output-section">
+                <h2 class="section-title">Output Options</h2>
+                
+                <div id="output-rotation-order" class="input-group">
+                    <select id="output-rotation-order" class="form-select">
+                        <option value="xyz">XYZ Order</option>
+                        <option value="xzy">XZY Order</option>
+                        <option value="yxz">YXZ Order</option>
+                        <option value="yzx">YZX Order</option>
+                        <option value="zxy">ZXY Order</option>
+                        <option value="zyx">ZYX Order</option>
+                    </select>
+                </div>
 
-            <div id="quaternion-inputs" class="input-group" style="display: none;">
-                <input type="number" placeholder="w" step="any">
-                <input type="number" placeholder="x" step="any">
-                <input type="number" placeholder="y" step="any">
-                <input type="number" placeholder="z" step="any">
-            </div>
+                <div id="output-units" class="toggle-container">
+                    <span class="toggle-label">Output Units</span>
+                    <span class="unit-label">Radians</span>
+                    <label class="toggle-button">
+                        <input type="checkbox" id="output-units-toggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="unit-label">Degrees</span>
+                </div>
 
-            <div id="matrix-inputs" class="input-group" style="display: none;">
-                <input type="number" placeholder="m11" step="any">
-                <input type="number" placeholder="m12" step="any">
-                <input type="number" placeholder="m13" step="any">
-                <input type="number" placeholder="m21" step="any">
-                <input type="number" placeholder="m22" step="any">
-                <input type="number" placeholder="m23" step="any">
-                <input type="number" placeholder="m31" step="any">
-                <input type="number" placeholder="m32" step="any">
-                <input type="number" placeholder="m33" step="any">
-            </div>
-
-            <div id="axis-angle-inputs" class="input-group" style="display: none;">
-                <input type="number" placeholder="Angle" step="any">
-                <input type="number" placeholder="Axis X" step="any">
-                <input type="number" placeholder="Axis Y" step="any">
-                <input type="number" placeholder="Axis Z" step="any">
-            </div>
-
-            <div id="output-units" class="toggle-container">
-                <span class="toggle-label">Output Units:</span>
-                <label class="toggle-button">
-                    <input type="checkbox" id="output-units-toggle" checked>
-                    <span class="toggle-slider"></span>
-                </label>
-                <span class="unit-label">Radians</span>
-                <span class="unit-label">Degrees</span>
-            </div>
-
-            <div id="output-rotation-order" class="input-group">
-                <select id="output-rotation-order">
-                    <option value="xyz">XYZ</option>
-                    <option value="xzy">XZY</option>
-                    <option value="yxz">YXZ</option>
-                    <option value="yzx">YZX</option>
-                    <option value="zxy">ZXY</option>
-                    <option value="zyx">ZYX</option>
-                </select>
-            </div>
-
-            <button onclick="convert()">Convert</button>
-
-            <div class="results">
-                <h3>Results:</h3>
-                <pre id="results"></pre>
+                <div class="results">
+                    <h3 class="section-title">Results</h3>
+                    <pre id="results">No conversion performed yet.</pre>
+                </div>
             </div>
         </div>
-        <div id="viewer"></div>
+
+        <div class="viewer-section" id="viewer"></div>
     </div>
 
     <script async src="https://unpkg.com/es-module-shims@1.8.0/dist/es-module-shims.js"></script>
@@ -187,56 +371,51 @@
         let scene, camera, renderer, cube, controls;
 
         function init() {
-            // Scene setup
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            renderer = new THREE.WebGLRenderer();
-            renderer.setSize(window.innerWidth - 340, window.innerHeight);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth - 440, window.innerHeight - 40);
             document.getElementById('viewer').appendChild(renderer.domElement);
 
-            // Grid and axes
             const gridHelper = new THREE.GridHelper(10, 10);
             scene.add(gridHelper);
             const axesHelper = new THREE.AxesHelper(5);
             scene.add(axesHelper);
 
-            // Cube setup
             const geometry = new THREE.BoxGeometry(2, 2, 2);
             const material = new THREE.MeshPhongMaterial({ 
-                color: 0x00ff00,
+                color: 0x007bff,
                 transparent: true,
                 opacity: 0.8
             });
             cube = new THREE.Mesh(geometry, material);
             scene.add(cube);
 
-            // Add edges to cube
             const edges = new THREE.EdgesGeometry(geometry);
             const edgesMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
             const edgesMesh = new THREE.LineSegments(edges, edgesMaterial);
             cube.add(edgesMesh);
 
-            // Lighting
             const light = new THREE.DirectionalLight(0xffffff, 1);
             light.position.set(1, 1, 1);
             scene.add(light);
             scene.add(new THREE.AmbientLight(0x404040));
 
-            // Camera and controls
-            camera.position.z = 5;
+            camera.position.set(5, 5, 5);
             controls = new OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
 
-            // Handle window resize
             window.addEventListener('resize', onWindowResize, false);
-
             animate();
         }
 
         function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
+            const width = window.innerWidth > 992 ? window.innerWidth - 440 : window.innerWidth - 40;
+            const height = window.innerWidth > 992 ? window.innerHeight - 40 : 400;
+            
+            camera.aspect = width / height;
             camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth - 340, window.innerHeight);
+            renderer.setSize(width, height);
         }
 
         function animate() {
@@ -245,24 +424,20 @@
             renderer.render(scene, camera);
         }
 
-        // Initialize the scene
         init();
 
-        // Make updateRotation available globally
         window.updateRotation = function(quaternion) {
             cube.quaternion.set(quaternion[1], quaternion[2], quaternion[3], quaternion[0]);
         };
     </script>
 
     <script>
-        // Show/hide input groups and angle unit toggles based on selected format
         document.getElementById('format').addEventListener('change', function(e) {
             document.querySelectorAll('.input-group').forEach(group => {
                 group.style.display = 'none';
             });
             document.getElementById(e.target.value + '-inputs').style.display = 'block';
             
-            // Show/hide input units toggle and rotation order based on format
             const angleUnits = document.getElementById('angle-units');
             const rotationOrder = document.getElementById('rotation-order');
             const showAngles = ['euler', 'axis-angle'].includes(e.target.value);
@@ -271,16 +446,14 @@
             updatePlaceholders();
         });
 
-        // Update unit labels when toggles change
         document.getElementById('input-units-toggle').addEventListener('change', function(e) {
             updatePlaceholders();
         });
 
         document.getElementById('output-units-toggle').addEventListener('change', function(e) {
-            convert(); // Automatically recalculate when output units change
+            convert();
         });
 
-        // Update input placeholders based on selected units
         function updatePlaceholders() {
             const format = document.getElementById('format').value;
             const useDegrees = document.getElementById('input-units-toggle').checked;
@@ -301,7 +474,6 @@
             }
         }
 
-        // Update placeholders when rotation order changes
         document.getElementById('input-rotation-order').addEventListener('change', updatePlaceholders);
 
         function getInputValues() {
@@ -338,10 +510,10 @@
                     document.getElementById('results').textContent = 'Error: ' + data.error;
                 } else {
                     const formattedResults = {
-                        [`euler (${data.units}, ${data.outputRotationOrder.toUpperCase()})`]: data.euler,
-                        'quaternion (w, x, y, z)': data.quaternion,
-                        'matrix (3x3)': data.matrix,
-                        [`axis-angle (${data.units})`]: {
+                        [`Euler (${data.units}, ${data.outputRotationOrder.toUpperCase()})`]: data.euler,
+                        'Quaternion (w, x, y, z)': data.quaternion,
+                        'Matrix (3x3)': data.matrix,
+                        [`Axis-Angle (${data.units})`]: {
                             angle: data.axisAngle.angle,
                             axis: data.axisAngle.axis
                         }
@@ -355,7 +527,6 @@
             });
         }
 
-        // Initialize placeholders
         updatePlaceholders();
     </script>
 </body>
