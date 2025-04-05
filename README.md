@@ -1,138 +1,83 @@
 # 3D Rotation Converter
 
-A modern web application for converting between different 3D rotation formats with real-time visualization.
+A simple web application to convert between different 3D rotation formats (Euler angles, quaternions, rotation matrices, and axis-angle representations) with real-time 3D visualization.
 
 ## Features
 
-- **Multiple Rotation Formats**:
-  - Euler angles (XYZ, XZY, YXZ, YZX, ZXY, ZYX)
+- Convert between:
+  - Euler angles (XYZ)
   - Quaternions
-  - Rotation matrices (3x3)
+  - Rotation matrices
   - Axis-angle representation
-  - Triple points (P,Q,R) for frame definition
-  - Axis with angle magnitude
+- Real-time 3D visualization using Three.js
+- Interactive 3D viewer with orbit controls
 
-- **Interactive 3D Visualization**:
-  - Real-time rotation preview
-  - Interactive orbit controls
-  - Axis labels and grid
-  - Smooth transitions between rotations
+## Live Demo
 
-- **User-Friendly Interface**:
-  - Radians/Degrees toggle
-  - Real-time validation
-  - Copy-to-clipboard functionality
-  - Mobile-responsive design
-  - Clear error messages
-  - Helpful tooltips and explanations
+Visit [https://3d-rotation-converter.vercel.app](https://3d-rotation-converter.vercel.app) to try it out!
 
-- **Batch Processing**:
-  - Convert multiple rotations at once
-  - Support for all input formats
-  - Bulk copy results
+## Local Development
 
-## Prerequisites
-
-- Node.js 20.x or later
-- npm 10.x or later
-
-## Installation
-
-1. Clone the repository:
+1. Create a virtual environment (optional but recommended):
    ```bash
-   git clone https://github.com/yourusername/rotation-converter.git
-   cd rotation-converter
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
 2. Install dependencies:
    ```bash
-   npm install
+   pip install -r requirements.txt
    ```
 
-3. Start the development server:
+3. Run the application:
    ```bash
-   npm run dev
+   python app.py
    ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+4. Open your browser and navigate to `http://localhost:5000`
 
 ## Usage
 
-### Single Conversion
-1. Select your input format (Euler, Quaternion, Matrix, etc.)
-2. Choose angle format (Radians/Degrees) if applicable
-3. Enter your rotation values
-4. View the results in all formats
-5. Use the 3D visualization to verify the rotation
-6. Copy results to clipboard as needed
+1. Select the input rotation format from the dropdown
+2. Enter the rotation values in the corresponding input fields
+3. Click "Convert" to see the rotation represented in all formats
+4. The 3D viewer will update to show the rotation
+5. Use your mouse to orbit around the 3D view:
+   - Left click + drag to rotate the view
+   - Right click + drag to pan
+   - Scroll to zoom
 
-### Batch Conversion
-1. Navigate to the batch conversion page
-2. Select your input format
-3. Enter multiple rotations (one per line)
-4. Convert all at once
-5. Copy results in your preferred format
+## Technologies Used
 
-## Project Structure
-
-```
-rotation-converter/
-├── src/
-│   ├── app/                 # Next.js pages
-│   │   ├── conversion/      # Conversion-related components
-│   │   ├── inputs/         # Input components for different formats
-│   │   ├── ui/            # Reusable UI components
-│   │   └── visualization/  # 3D visualization components
-│   ├── utils/              # Utility functions
-│   ├── types/              # TypeScript type definitions
-│   └── tests/              # Test files
-├── public/                 # Static assets
-└── package.json           # Project dependencies
-```
-
-## Testing
-
-Run the test suite:
-```bash
-npm test
-```
-
-Run tests in watch mode:
-```bash
-npm test -- --watch
-```
-
-## Development
-
-- Code style is enforced using ESLint and Prettier
-- Tests use Jest and React Testing Library
-- Commits should follow conventional commit format
-- PRs should include tests for new features
+- Backend:
+  - Python
+  - Flask
+  - NumPy
+  - SciPy
+- Frontend:
+  - Three.js for 3D visualization
+  - Vanilla JavaScript
+  - HTML/CSS
 
 ## Deployment
 
-The application is configured for deployment on Vercel:
-1. Push changes to the main branch
-2. CI/CD pipeline will automatically:
-   - Run tests
-   - Check types
-   - Deploy to Vercel if all checks pass
+The application is deployed on Vercel using their Python runtime. The deployment configuration is handled by `vercel.json` in the root directory.
+
+To deploy your own instance:
+
+1. Fork this repository
+2. Create a new project on Vercel
+3. Connect your forked repository
+4. Deploy!
 
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Submit a pull request
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-- Three.js for 3D visualization
-- Next.js for the framework
-- TailwindCSS for styling
-- Jest and React Testing Library for testing
+MIT License - feel free to use this code for any purpose.

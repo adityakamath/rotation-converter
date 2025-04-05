@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>3D Rotation Converter</title>
+    <style>
+        body { margin: 0; }
+        #container { display: flex; }
+        #controls { padding: 20px; width: 300px; }
+        #viewer { flex-grow: 1; }
+        select, input, button { 
+            margin: 5px 0;
+            padding: 5px;
+            width: 100%;
+        }
+        .results {
+            margin-top: 20px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="controls">
+            <h2>3D Rotation Converter</h2>
+            
+            <select id="format">
+                <option value="euler">Euler Angles (XYZ)</option>
+                <option value="quaternion">Quaternion</option>
+                <option value="matrix">Rotation Matrix</option>
+                <option value="axis-angle">Axis-Angle</option>
+            </select>
+
+            <div id="euler-inputs" class="input-group">
+                <input type="number" placeholder="X (degrees)" step="any">
+                <input type="number" placeholder="Y (degrees)" step="any">
+                <input type="number" placeholder="Z (degrees)" step="any">
+            </div>
+
+            <div id="quaternion-inputs" class="input-group" style="display: none;">
+                <input type="number" placeholder="w" step="any">
+                <input type="number" placeholder="x" step="any">
+                <input type="number" placeholder="y" step="any">
+                <input type="number" placeholder="z" step="any">
+            </div>
+
+            <div id="matrix-inputs" class="input-group" style="display: none;">
+                <input type="number" placeholder="m11" step="any">
+                <input type="number" placeholder="m12" step="any">
+                <input type="number" placeholder="m13" step="any">
+                <input type="number" placeholder="m21" step="any">
+                <input type="number" placeholder="m22" step="any">
+                <input type="number" placeholder="m23" step="any">
+                <input type="number" placeholder="m31" step="any">
+                <input type="number" placeholder="m32" step="any">
+                <input type="number" placeholder="m33" step="any">
+            </div>
+
+            <div id="axis-angle-inputs" class="input-group" style="display: none;">
+                <input type="number" placeholder="Angle (degrees)" step="any">
+                <input type="number" placeholder="Axis X" step="any">
+                <input type="number" placeholder="Axis Y" step="any">
+                <input type="number" placeholder="Axis Z" step="any">
+            </div>
+
+            <button onclick="convert()">Convert</button>
+
+            <div class="results">
+                <h3>Results:</h3>
+                <pre id="results"></pre>
+            </div>
+        </div>
+        <div id="viewer"></div>
+    </div>
+
+    <script async src="https://unpkg.com/es-module-shims@1.8.0/dist/es-module-shims.js"></script>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.162.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.162.0/examples/jsm/"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        let scene, camera, renderer, cube, controls;
+
+        function init() {
+            // Scene setup
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth - 340, window.innerHeight);
+            document.getElementById('viewer').appendChild(renderer.domElement);
+
+            // Grid and axes
+            const gridHelper = new THREE.GridHelper(10, 10);
+            scene.add(gridHelper);
+            const axesHelper = new THREE.AxesHelper(5);
+            scene.add(axesHelper);
+
+            // Cube setup
+            const geometry = new THREE.BoxGeometry(2, 2, 2);
+            const material = new THREE.MeshPhongMaterial({ 
+                color: 0x00ff00,
+                transparent: true,
+                opacity: 0.8
+            });
+            cube = new THREE.Mesh(geometry, material);
+            scene.add(cube);
+
+            // Add edges to cube
+            const edges = new THREE.EdgesGeometry(geometry);
+            const edgesMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+            const edgesMesh = new THREE.LineSegments(edges, edgesMaterial);
+            cube.add(edgesMesh);
+
+            // Lighting
+            const light = new THREE.DirectionalLight(0xffffff, 1);
+            light.position.set(1, 1, 1);
+            scene.add(light);
+            scene.add(new THREE.AmbientLight(0x404040));
+
+            // Camera and controls
+            camera.position.z = 5;
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+
+            // Handle window resize
+            window.addEventListener('resize', onWindowResize, false);
+
+            animate();
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth - 340, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Initialize the scene
+        init();
+
+        // Make updateRotation available globally
+        window.updateRotation = function(quaternion) {
+            cube.quaternion.set(quaternion[1], quaternion[2], quaternion[3], quaternion[0]);
+        };
+    </script>
+
+    <script>
+        // Show/hide input groups based on selected format
+        document.getElementById('format').addEventListener('change', function(e) {
+            document.querySelectorAll('.input-group').forEach(group => {
+                group.style.display = 'none';
+            });
+            document.getElementById(e.target.value + '-inputs').style.display = 'block';
+        });
+
+        function getInputValues() {
+            const format = document.getElementById('format').value;
+            const inputs = document.getElementById(format + '-inputs').getElementsByTagName('input');
+            return Array.from(inputs).map(input => parseFloat(input.value) || 0);
+        }
+
+        function convert() {
+            const format = document.getElementById('format').value;
+            const values = getInputValues();
+
+            fetch('/api/convert', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    format: format,
+                    values: values
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('results').textContent = 'Error: ' + data.error;
+                } else {
+                    document.getElementById('results').textContent = JSON.stringify(data, null, 2);
+                    updateRotation(data.quaternion);
+                }
+            })
+            .catch(error => {
+                document.getElementById('results').textContent = 'Error: ' + error;
+            });
+        }
+    </script>
+</body>
+</html>
