@@ -30,6 +30,7 @@
             display: inline-block;
             width: 60px;
             height: 30px;
+            margin: 0 10px;
         }
         .toggle-button input {
             opacity: 0;
@@ -67,7 +68,9 @@
         .unit-label {
             font-size: 12px;
             color: #666;
-            margin-left: 5px;
+        }
+        .unit-label:last-child {
+            margin-left: 0;
         }
     </style>
 </head>
@@ -89,7 +92,19 @@
                     <input type="checkbox" id="input-units-toggle" checked>
                     <span class="toggle-slider"></span>
                 </label>
+                <span class="unit-label">Radians</span>
                 <span class="unit-label">Degrees</span>
+            </div>
+
+            <div id="rotation-order" class="input-group">
+                <select id="input-rotation-order">
+                    <option value="xyz">XYZ</option>
+                    <option value="xzy">XZY</option>
+                    <option value="yxz">YXZ</option>
+                    <option value="yzx">YZX</option>
+                    <option value="zxy">ZXY</option>
+                    <option value="zyx">ZYX</option>
+                </select>
             </div>
 
             <div id="euler-inputs" class="input-group">
@@ -130,7 +145,19 @@
                     <input type="checkbox" id="output-units-toggle" checked>
                     <span class="toggle-slider"></span>
                 </label>
+                <span class="unit-label">Radians</span>
                 <span class="unit-label">Degrees</span>
+            </div>
+
+            <div id="output-rotation-order" class="input-group">
+                <select id="output-rotation-order">
+                    <option value="xyz">XYZ</option>
+                    <option value="xzy">XZY</option>
+                    <option value="yxz">YXZ</option>
+                    <option value="yzx">YZX</option>
+                    <option value="zxy">ZXY</option>
+                    <option value="zyx">ZYX</option>
+                </select>
             </div>
 
             <button onclick="convert()">Convert</button>
@@ -235,19 +262,22 @@
             });
             document.getElementById(e.target.value + '-inputs').style.display = 'block';
             
-            // Show/hide input units toggle based on format
+            // Show/hide input units toggle and rotation order based on format
             const angleUnits = document.getElementById('angle-units');
-            angleUnits.style.display = ['euler', 'axis-angle'].includes(e.target.value) ? 'flex' : 'none';
+            const rotationOrder = document.getElementById('rotation-order');
+            const showAngles = ['euler', 'axis-angle'].includes(e.target.value);
+            angleUnits.style.display = showAngles ? 'flex' : 'none';
+            rotationOrder.style.display = e.target.value === 'euler' ? 'block' : 'none';
+            updatePlaceholders();
         });
 
         // Update unit labels when toggles change
         document.getElementById('input-units-toggle').addEventListener('change', function(e) {
-            e.target.nextElementSibling.nextElementSibling.textContent = e.target.checked ? 'Degrees' : 'Radians';
             updatePlaceholders();
         });
 
         document.getElementById('output-units-toggle').addEventListener('change', function(e) {
-            e.target.nextElementSibling.nextElementSibling.textContent = e.target.checked ? 'Degrees' : 'Radians';
+            convert(); // Automatically recalculate when output units change
         });
 
         // Update input placeholders based on selected units
@@ -258,14 +288,21 @@
 
             if (format === 'euler') {
                 const inputs = document.getElementById('euler-inputs').getElementsByTagName('input');
-                inputs[0].placeholder = `X ${unit}`;
-                inputs[1].placeholder = `Y ${unit}`;
-                inputs[2].placeholder = `Z ${unit}`;
+                const order = document.getElementById('input-rotation-order').value.toUpperCase();
+                inputs[0].placeholder = `${order[0]} ${unit}`;
+                inputs[1].placeholder = `${order[1]} ${unit}`;
+                inputs[2].placeholder = `${order[2]} ${unit}`;
             } else if (format === 'axis-angle') {
                 const inputs = document.getElementById('axis-angle-inputs').getElementsByTagName('input');
                 inputs[0].placeholder = `Angle ${unit}`;
+                inputs[1].placeholder = 'Axis X (normalized)';
+                inputs[2].placeholder = 'Axis Y (normalized)';
+                inputs[3].placeholder = 'Axis Z (normalized)';
             }
         }
+
+        // Update placeholders when rotation order changes
+        document.getElementById('input-rotation-order').addEventListener('change', updatePlaceholders);
 
         function getInputValues() {
             const format = document.getElementById('format').value;
@@ -278,6 +315,8 @@
             const values = getInputValues();
             const useInputDegrees = document.getElementById('input-units-toggle').checked;
             const useOutputDegrees = document.getElementById('output-units-toggle').checked;
+            const inputRotationOrder = document.getElementById('input-rotation-order').value;
+            const outputRotationOrder = document.getElementById('output-rotation-order').value;
 
             fetch('/api/convert', {
                 method: 'POST',
@@ -288,7 +327,9 @@
                     format: format,
                     values: values,
                     inputDegrees: useInputDegrees,
-                    outputDegrees: useOutputDegrees
+                    outputDegrees: useOutputDegrees,
+                    inputRotationOrder: inputRotationOrder,
+                    outputRotationOrder: outputRotationOrder
                 })
             })
             .then(response => response.json())
@@ -296,7 +337,16 @@
                 if (data.error) {
                     document.getElementById('results').textContent = 'Error: ' + data.error;
                 } else {
-                    document.getElementById('results').textContent = JSON.stringify(data, null, 2);
+                    const formattedResults = {
+                        [`euler (${data.units}, ${data.outputRotationOrder.toUpperCase()})`]: data.euler,
+                        'quaternion (w, x, y, z)': data.quaternion,
+                        'matrix (3x3)': data.matrix,
+                        [`axis-angle (${data.units})`]: {
+                            angle: data.axisAngle.angle,
+                            axis: data.axisAngle.axis
+                        }
+                    };
+                    document.getElementById('results').textContent = JSON.stringify(formattedResults, null, 2);
                     updateRotation(data.quaternion);
                 }
             })
