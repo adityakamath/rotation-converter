@@ -16,6 +16,59 @@
             margin-top: 20px;
             font-family: monospace;
         }
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .toggle-label {
+            flex: 1;
+            font-size: 14px;
+        }
+        .toggle-button {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        .toggle-button input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 30px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: #2196F3;
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+        .unit-label {
+            font-size: 12px;
+            color: #666;
+            margin-left: 5px;
+        }
     </style>
 </head>
 <body>
@@ -30,10 +83,19 @@
                 <option value="axis-angle">Axis-Angle</option>
             </select>
 
+            <div id="angle-units" class="toggle-container">
+                <span class="toggle-label">Input Units:</span>
+                <label class="toggle-button">
+                    <input type="checkbox" id="input-units-toggle" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="unit-label">Degrees</span>
+            </div>
+
             <div id="euler-inputs" class="input-group">
-                <input type="number" placeholder="X (degrees)" step="any">
-                <input type="number" placeholder="Y (degrees)" step="any">
-                <input type="number" placeholder="Z (degrees)" step="any">
+                <input type="number" placeholder="X" step="any">
+                <input type="number" placeholder="Y" step="any">
+                <input type="number" placeholder="Z" step="any">
             </div>
 
             <div id="quaternion-inputs" class="input-group" style="display: none;">
@@ -56,10 +118,19 @@
             </div>
 
             <div id="axis-angle-inputs" class="input-group" style="display: none;">
-                <input type="number" placeholder="Angle (degrees)" step="any">
+                <input type="number" placeholder="Angle" step="any">
                 <input type="number" placeholder="Axis X" step="any">
                 <input type="number" placeholder="Axis Y" step="any">
                 <input type="number" placeholder="Axis Z" step="any">
+            </div>
+
+            <div id="output-units" class="toggle-container">
+                <span class="toggle-label">Output Units:</span>
+                <label class="toggle-button">
+                    <input type="checkbox" id="output-units-toggle" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="unit-label">Degrees</span>
             </div>
 
             <button onclick="convert()">Convert</button>
@@ -157,13 +228,44 @@
     </script>
 
     <script>
-        // Show/hide input groups based on selected format
+        // Show/hide input groups and angle unit toggles based on selected format
         document.getElementById('format').addEventListener('change', function(e) {
             document.querySelectorAll('.input-group').forEach(group => {
                 group.style.display = 'none';
             });
             document.getElementById(e.target.value + '-inputs').style.display = 'block';
+            
+            // Show/hide input units toggle based on format
+            const angleUnits = document.getElementById('angle-units');
+            angleUnits.style.display = ['euler', 'axis-angle'].includes(e.target.value) ? 'flex' : 'none';
         });
+
+        // Update unit labels when toggles change
+        document.getElementById('input-units-toggle').addEventListener('change', function(e) {
+            e.target.nextElementSibling.nextElementSibling.textContent = e.target.checked ? 'Degrees' : 'Radians';
+            updatePlaceholders();
+        });
+
+        document.getElementById('output-units-toggle').addEventListener('change', function(e) {
+            e.target.nextElementSibling.nextElementSibling.textContent = e.target.checked ? 'Degrees' : 'Radians';
+        });
+
+        // Update input placeholders based on selected units
+        function updatePlaceholders() {
+            const format = document.getElementById('format').value;
+            const useDegrees = document.getElementById('input-units-toggle').checked;
+            const unit = useDegrees ? '(deg)' : '(rad)';
+
+            if (format === 'euler') {
+                const inputs = document.getElementById('euler-inputs').getElementsByTagName('input');
+                inputs[0].placeholder = `X ${unit}`;
+                inputs[1].placeholder = `Y ${unit}`;
+                inputs[2].placeholder = `Z ${unit}`;
+            } else if (format === 'axis-angle') {
+                const inputs = document.getElementById('axis-angle-inputs').getElementsByTagName('input');
+                inputs[0].placeholder = `Angle ${unit}`;
+            }
+        }
 
         function getInputValues() {
             const format = document.getElementById('format').value;
@@ -174,6 +276,8 @@
         function convert() {
             const format = document.getElementById('format').value;
             const values = getInputValues();
+            const useInputDegrees = document.getElementById('input-units-toggle').checked;
+            const useOutputDegrees = document.getElementById('output-units-toggle').checked;
 
             fetch('/api/convert', {
                 method: 'POST',
@@ -182,7 +286,9 @@
                 },
                 body: JSON.stringify({
                     format: format,
-                    values: values
+                    values: values,
+                    inputDegrees: useInputDegrees,
+                    outputDegrees: useOutputDegrees
                 })
             })
             .then(response => response.json())
@@ -198,6 +304,9 @@
                 document.getElementById('results').textContent = 'Error: ' + error;
             });
         }
+
+        // Initialize placeholders
+        updatePlaceholders();
     </script>
 </body>
 </html>
