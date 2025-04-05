@@ -40,8 +40,9 @@
             display: flex !important;
             flex-direction: row !important;
             gap: 20px;
-            height: calc(100vh - 40px);
+            height: calc(100vh - 100px);
             width: 100%;
+            flex: 1;
         }
 
         .controls-section {
@@ -253,6 +254,25 @@
             overflow-y: auto;
         }
 
+        .footer {
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: auto;
+        }
+
+        .footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer a:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
+
         @media (max-width: 992px) {
             .app-container {
                 flex-direction: column !important;
@@ -384,6 +404,13 @@
 
         <div class="viewer-section" id="viewer"></div>
     </div>
+
+    <footer class="footer">
+        <p>
+            View on <a href="https://github.com/adityakamath/rotation-converter" target="_blank" rel="noopener noreferrer">GitHub</a> | 
+            © 2024 Aditya Kamath
+        </p>
+    </footer>
 
     <script async src="https://unpkg.com/es-module-shims@1.8.0/dist/es-module-shims.js"></script>
     <script type="importmap">
