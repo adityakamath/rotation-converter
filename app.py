@@ -45,4 +45,4 @@ if __name__ == '__main__':
     app.run(debug=True)
 
 # For Vercel serverless deployment
-app.debug = False
+app = app.wsgi_app
