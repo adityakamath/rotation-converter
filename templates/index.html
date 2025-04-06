@@ -154,10 +154,29 @@
 
         .input-group {
             margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
         }
 
         .input-group input {
-            margin-bottom: 8px;
+            margin-bottom: 15px;
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+
+        .input-group input:last-child {
+            margin-bottom: 0;
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
         }
 
         .input-label {
